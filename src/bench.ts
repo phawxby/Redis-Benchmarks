@@ -1,68 +1,97 @@
-import { add, complete, cycle, save, suite } from "benny";
-import { Options } from "benny/lib/internal/common-types";
+import Benchmark from "benchmark";
 import * as benchIoredis from "./benchIoredis";
+import * as benchIoredisGenericPool from "./benchIoredisGenericPool";
 import * as benchIoredisPipeline from "./benchIoredisPipeline";
+import * as benchRedisGenericPool from "./benchRedisGenericPool";
 import * as benchRedis from "./benchRedis";
 import { init } from "./init";
 
-const options: Options = {
-  maxTime: 1,
-};
+var suite = new Benchmark.Suite();
 
 (async (): Promise<void> => {
-  console.log("Init");
-  await init();
-  console.log("Init complete");
+  try {
+    console.log("Init data");
+    await init();
+    console.log("Init complete");
 
-  suite(
-    "Redis",
+    await new Promise((resolve, reject) => {
+      // add tests
+      suite
+        .add("redis", {
+          defer: true,
+          setup: () => {
+            benchRedis.init();
+          },
+          fn: async (deferred: any) => {
+            benchRedis.bench().finally(() => deferred.resolve());
+          },
+          teardown: () => {
+            benchRedis.dispose();
+          },
+        })
+        .add("ioredis", {
+          defer: true,
+          setup: () => {
+            benchIoredis.init();
+          },
+          fn: async (deferred: any) => {
+            benchIoredis.bench().finally(() => deferred.resolve());
+          },
+          teardown: () => {
+            benchIoredis.dispose();
+          },
+        })
+        .add("ioredis pipeline", {
+          defer: true,
+          setup: () => {
+            benchIoredisPipeline.init();
+          },
+          fn: async (deferred: any) => {
+            benchIoredisPipeline.bench().finally(() => deferred.resolve());
+          },
+          teardown: () => {
+            benchIoredisPipeline.dispose();
+          },
+        })
+        .add("ioredis generic pool", {
+          defer: true,
+          setup: () => {
+            benchIoredisGenericPool.init();
+          },
+          fn: async (deferred: any) => {
+            benchIoredisGenericPool.bench().finally(() => deferred.resolve());
+          },
+          teardown: () => {
+            benchIoredisGenericPool.dispose();
+          },
+        })
+        .add("redis generic pool", {
+          defer: true,
+          setup: () => {
+            benchRedisGenericPool.init();
+          },
+          fn: async (deferred: any) => {
+            benchRedisGenericPool.bench().finally(() => deferred.resolve());
+          },
+          teardown: () => {
+            benchRedisGenericPool.dispose();
+          },
+        })
+        // add listeners
+        .on("cycle", function (event: any) {
+          console.log(String(event.target));
+        })
+        .on("complete", function () {
+          console.log("Fastest is " + suite.filter("fastest").map("name"));
 
-    add(
-      "redis",
-      async () => {
-        // setup
-        await benchRedis.init();
+          resolve(true);
+        })
+        // run async
+        .run({ async: true });
+    });
 
-        return async () => {
-          // Run
-          await benchRedis.bench();
-        };
-      },
-      options
-    ),
-
-    add(
-      "ioredis",
-      async () => {
-        // setup
-        await benchIoredis.init();
-
-        return async () => {
-          // Run
-          await benchIoredis.bench();
-        };
-      },
-      options
-    ),
-
-    add(
-      "ioredis pipeline",
-      async () => {
-        // setup
-        await benchIoredisPipeline.init();
-
-        return async () => {
-          // Run
-          await benchIoredisPipeline.bench();
-        };
-      },
-      options
-    ),
-
-    complete(async () => {
-      await benchRedis.dispose();
-      await benchIoredis.dispose();
-      await benchIoredisPipeline.dispose();
-    })
-  );
+    console.log("Finished");
+  } catch (err) {
+    console.error(err);
+  }
 })();
