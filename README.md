@@ -19,10 +19,10 @@ Designed to simulate highly parallel situations (express) with varying data size
 
 ## Results
 ```
-redis x 954 ops/sec ±3.28% (62 runs sampled)
-ioredis x 942 ops/sec ±3.43% (57 runs sampled)
-ioredis pipeline x 804 ops/sec ±3.08% (61 runs sampled)
-ioredis generic pool x 840 ops/sec ±3.77% (66 runs sampled)
-redis generic pool x 921 ops/sec ±2.20% (58 runs sampled)
-Fastest is redis,ioredis
+redis x 597 ops/sec ±1.07% (253 runs sampled)
+ioredis x 584 ops/sec ±1.23% (253 runs sampled)
+ioredis pipeline x 684 ops/sec ±1.49% (252 runs sampled)
+ioredis generic pool x 694 ops/sec ±1.17% (253 runs sampled)
+redis generic pool x 684 ops/sec ±1.41% (253 runs sampled)
+Fastest is ioredis generic pool,redis generic pool,ioredis pipeline
 ```

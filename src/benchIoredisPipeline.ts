@@ -1,5 +1,6 @@
 import Redis from "ioredis";
 import { getRandomKey, redisIp, redisPort } from "./static";
+import Benchmark from "benchmark";
 
 let client: Redis.Redis;
 
@@ -22,3 +23,17 @@ export function dispose() {
     client.disconnect();
   }
 }
+
+export const options: Benchmark.Options = {
+  defer: true,
+  minSamples: 200,
+  setup: () => {
+    init();
+  },
+  fn: async (deferred: any) => {
+    bench().finally(() => deferred.resolve());
+  },
+  teardown: () => {
+    dispose();
+  },
+};

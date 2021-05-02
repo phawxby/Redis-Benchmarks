@@ -1,6 +1,7 @@
 import Redis from "redis";
 import { getRandomKey, redisIp, redisPort } from "./static";
 import { promisify } from "util";
+import Benchmark from "benchmark";
 
 let client: Redis.RedisClient;
 let get: (arg1: string) => Promise<string | null>;
@@ -28,3 +29,17 @@ export function dispose() {
     client.end(true);
   }
 }
+
+export const options: Benchmark.Options = {
+  defer: true,
+  minSamples: 200,
+  setup: () => {
+    init();
+  },
+  fn: async (deferred: any) => {
+    bench().finally(() => deferred.resolve());
+  },
+  teardown: () => {
+    dispose();
+  },
+};

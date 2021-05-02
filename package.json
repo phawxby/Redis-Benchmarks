@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "bench": "ts-node ./src/bench.ts"
+  },
   "dependencies": {
     "benchmark": "^2.1.4",
     "generic-pool": "^3.7.8",

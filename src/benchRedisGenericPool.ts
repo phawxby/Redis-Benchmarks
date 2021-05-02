@@ -1,6 +1,7 @@
 import Redis from "redis";
 import { getRandomKey, redisIp, redisPort } from "./static";
 import genericPool from "generic-pool";
+import Benchmark from "benchmark";
 
 let pool: genericPool.Pool<Redis.RedisClient>;
 
@@ -41,7 +42,6 @@ export function dispose() {
   });
 }
 
-
 async function getRandom() {
   let client: Redis.RedisClient | undefined;
 
@@ -67,3 +67,17 @@ async function getRandom() {
     }
   }
 }
+
+export const options: Benchmark.Options = {
+  defer: true,
+  minSamples: 200,
+  setup: () => {
+    init();
+  },
+  fn: async (deferred: any) => {
+    bench().finally(() => deferred.resolve());
+  },
+  teardown: () => {
+    dispose();
+  },
+};

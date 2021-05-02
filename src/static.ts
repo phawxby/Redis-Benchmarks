@@ -3,8 +3,8 @@ import { randomBytes } from "crypto";
 export const redisIp = "127.0.0.1";
 export const redisPort = 6379;
 
-// 5kB
-const smallKeySize = 5000;
+// 10kB
+const smallKeySize = 10000;
 const smallKeyCount = 5000;
 const smallKeys = Array.from(Array(smallKeyCount).keys()).map(
   (x) => `key-small-${x}`
@@ -19,7 +19,7 @@ const mediumKeys = Array.from(Array(mediumKeyCount).keys()).map(
 
 // 250kB
 const largeKeySize = 250000;
-const largeKeyCount = 25;
+const largeKeyCount = 20;
 const largeKeys = Array.from(Array(largeKeyCount).keys()).map(
   (x) => `key-large-${x}`
 );
